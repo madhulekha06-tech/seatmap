@@ -1,0 +1,170 @@
+!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Exam Timer</title>
+
+<style>
+    body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #6a7cff, #8a52d4);
+        font-family: "Poppins", Arial, sans-serif;
+    }
+
+    .page {
+        width: 420px;
+        background: #ffffff;
+        padding: 35px 30px;
+        border-radius: 22px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        text-align: center;
+    }
+
+    h1 {
+        margin-bottom: 20px;
+        color: #333;
+        font-size: 26px;
+        font-weight: 800;
+    }
+
+    .timer-box {
+        background: linear-gradient(135deg, #6bd5ff, #1e9cff);
+        padding: 30px 20px;
+        border-radius: 20px;
+        color: #fff;
+        box-shadow: 0 0 30px rgba(0,0,0,0.25);
+        transition: all 0.4s ease;
+    }
+
+    .label {
+        font-size: 17px;
+        margin-bottom: 10px;
+        opacity: 0.9;
+    }
+
+    #timer {
+        font-size: 42px;
+        font-weight: 900;
+        letter-spacing: 4px;
+        text-shadow: 0 0 12px rgba(0,0,0,0.4);
+    }
+
+    .status {
+        margin-top: 22px;
+        font-size: 15px;
+        color: #555;
+        font-weight: 600;
+    }
+
+    .warning {
+        color: #e63946;
+        font-weight: 800;
+    }
+
+    /* 🔴 LAST 5 MIN BLINK */
+    .danger {
+        background: linear-gradient(135deg, #ff4b4b, #c91818) !important;
+        animation: blink 1s infinite;
+        box-shadow: 0 0 35px rgba(255,0,0,0.8);
+    }
+
+    @keyframes blink {
+        0%   { opacity: 1; }
+        50%  { opacity: 0.4; }
+        100% { opacity: 1; }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="page">
+    <h1>📝 Exam Timer</h1>
+
+    <div class="timer-box" id="timerBox">
+        <div class="label">⏳ Time Remaining</div>
+        <div id="timer">--:--:--</div>
+    </div>
+
+    <div class="status" id="statusText">
+        Waiting for exam to start...
+    </div>
+</div>
+
+<script>
+/* 📅 TODAY DATE */
+const examDate = new Date().toISOString().split("T")[0];
+
+/* 🧪 TEST TIME → 2:30 PM to 3:10 PM */
+const examStart = new Date(`${examDate}T14:30:00`).getTime();
+const examEnd   = new Date(`${examDate}T17:30:00`).getTime();
+
+let alertShown = false;
+
+function updateExamTimer() {
+    const now = new Date().getTime();
+    const timerEl = document.getElementById("timer");
+    const statusEl = document.getElementById("statusText");
+    const timerBox = document.getElementById("timerBox");
+
+    // BEFORE EXAM
+    if (now < examStart) {
+        timerEl.innerText = "00:40:00";
+        statusEl.innerText = "⏰ Exam not started yet";
+        statusEl.classList.remove("warning");
+        timerBox.classList.remove("danger");
+        return;
+    }
+
+    // DURING EXAM
+    if (now >= examStart && now < examEnd) {
+        const diff = examEnd - now;
+
+        const h = Math.floor(diff / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+        timerEl.innerText =
+            String(h).padStart(2,"0") + ":" +
+            String(m).padStart(2,"0") + ":" +
+            String(s).padStart(2,"0");
+
+        statusEl.innerText = "✍️ Exam in progress...";
+        statusEl.classList.remove("warning");
+
+        /* 🚨 LAST 30 MIN ALERT */
+        if (diff <= 30 * 60 * 1000 && !alertShown) {
+            alert("⚠️ Only 30 minutes left! Manage your time carefully.");
+            alertShown = true;
+            statusEl.innerText = "⚠️ Last 30 minutes remaining!";
+            statusEl.classList.add("warning");
+        }
+
+        /* 🔴 LAST 5 MIN BLINK EFFECT */
+        if (diff <= 5 * 60 * 1000) {
+            timerBox.classList.add("danger");
+            statusEl.innerText = "⛔ LAST 5 MINUTES!";
+            statusEl.classList.add("warning");
+        }
+
+        return;
+    }
+
+    // AFTER EXAM
+    timerEl.innerText = "00:00:00";
+    statusEl.innerText = "✅ Exam Over";
+    statusEl.classList.remove("warning");
+    timerBox.classList.remove("danger");
+}
+
+setInterval(updateExamTimer, 1000);
+updateExamTimer();
+</script>
+
+</body>
+</html>
+
