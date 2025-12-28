@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Building - Exam Room Allotment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .register-info {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .buildings-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            padding: 20px;
+        }
+
+        .building-card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .building-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .building-card.highlighted {
+            border: 3px solid #667eea;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+            }
+            50% {
+                box-shadow: 0 10px 40px rgba(102, 126, 234, 0.6);
+            }
+        }
+
+        .building-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .building-name {
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .building-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .highlighted-badge {
+            display: none;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 15px;
+            display: inline-block;
+        }
+
+        .building-card:not(.highlighted) .highlighted-badge {
+            display: none;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .back-button:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .instruction {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+.map-link {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.map-link button {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 14px 22px;
+  font-size: 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+  transition: 0.3s;
+}
+
+.map-link button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102,126,234,0.6);
+}
+                                    
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">← Back to Search</a>
+
+    <div class="header">
+        <h1>Select Your Building</h1>
+        <p class="register-info">Register Number: <span id="registerDisplay"></span></p>
+    </div>
+
+    <p class="instruction">Click on the highlighted building to view rooms</p>
+
+    <div class="buildings-container" id="buildingsContainer">
+        <!-- Buildings will be loaded here by JavaScript -->
+    </div>
+<div class="map-link">
+  <button onclick="openMap()">🗺️ View Campus Map</button>
+</div>
+    <script>
+        // Sample exam allocation data (same as search page)
+        const examAllocations = [
+           { registerNumber: "23UCS262", building: "CS", room: "101", seat: "1" },
+            { registerNumber: "23UCS263", building: "CS", room: "101", seat: "2" },
+            { registerNumber: "23UCS264", building: "CS", room: "101", seat: "3" },
+            { registerNumber: "23UCS265", building: "CS", room: "101", seat: "4" },
+            { registerNumber: "23UCS266", building: "CS", room: "101", seat: "5" },           
+            { registerNumber: "23UCS267", building: "CS", room: "102", seat: "6" },
+            { registerNumber: "23UCS268", building: "CS", room: "102", seat: "7" },
+            { registerNumber: "23UCS269", building: "CS", room: "102", seat: "8" },
+            { registerNumber: "23UCS270", building: "CS", room: "102", seat: "9" },
+            { registerNumber: "23UCS271", building: "CS", room: "102", seat: "10" },             
+             { registerNumber: "23UCS272", building: "CS", room: "103", seat: "11" },
+            { registerNumber: "23UCS273", building: "CS", room: "103", seat: "12" },
+            { registerNumber: "23UCS274", building: "CS", room: "103", seat: "13" },
+            { registerNumber: "23UCS275", building: "CS", room: "103", seat: "14" },
+            { registerNumber: "23UCS276", building: "CS", room: "103", seat: "15" },             
+            { registerNumber: "23UCS277", building: "CS", room: "104", seat: "16" },
+            { registerNumber: "23UCS278", building: "CS", room: "104", seat: "17" },
+            { registerNumber: "23UCS279", building: "CS", room: "104", seat: "18" },
+            { registerNumber: "23UCS280", building: "CS", room: "104", seat: "19" },
+            { registerNumber: "23UCS281", building: "CS", room: "104", seat: "20" },                       
+           { registerNumber: "23UCS282", building: "IT", room: "201", seat: "21" },
+            { registerNumber: "23UCS283", building: "IT", room: "201", seat: "22" },
+            { registerNumber: "23UCS284", building: "IT", room: "201", seat: "23" },
+            { registerNumber: "23UCS285", building: "IT", room: "201", seat: "24" },
+            { registerNumber: "23UCS286", building: "IT", room: "201", seat: "25" },
+
+            { registerNumber: "23UCS287", building: "IT", room: "202", seat: "26" },
+            { registerNumber: "23UCS288", building: "IT", room: "202", seat: "27" },
+            { registerNumber: "23UCS289", building: "IT", room: "202", seat: "28" },
+            { registerNumber: "23UCS290", building: "IT", room: "202", seat: "29" },
+            { registerNumber: "23UCS291", building: "IT", room: "202", seat: "30" },
+            
+            { registerNumber: "23UCS292", building: "IT", room: "203", seat: "31" },
+            { registerNumber: "23UCS293", building: "IT", room: "203", seat: "32" },
+            { registerNumber: "23UCS294", building: "IT", room: "203", seat: "33" },
+            { registerNumber: "23UCS295", building: "IT", room: "203", seat: "34" },
+            { registerNumber: "23UCS296", building: "IT", room: "203", seat: "35" },
+            
+            { registerNumber: "23UCS297", building: "IT", room: "204", seat: "36" },
+            { registerNumber: "23UCS298", building: "IT", room: "204", seat: "37" },
+            { registerNumber: "23UCS299", building: "IT", room: "204", seat: "38" },
+            { registerNumber: "23UCS300", building: "IT", room: "204", seat: "39" },
+            { registerNumber: "23UCS301", building: "IT", room: "204", seat: "40"},
+          
+            { registerNumber: "23UCS302", building: "BBA", room: "301", seat: "41" },
+            { registerNumber: "23UCS303", building: "BBA", room: "301", seat: "42" },
+            { registerNumber: "23UCS304", building: "BBA", room: "301", seat: "43" },
+            { registerNumber: "23UCS305", building: "BBA", room: "301", seat: "44" },
+            { registerNumber: "23UCS306", building: "BBA", room: "301", seat: "45" },
+          
+                
+            { registerNumber: "23UCS307", building: "BBA", room: "302", seat: "46" },
+            { registerNumber: "23UCS308", building: "BBA", room: "302", seat: "47" },
+            { registerNumber: "23UCS309", building: "BBA", room: "302", seat: "48" },
+            { registerNumber: "23UCS310", building: "BBA", room: "302", seat: "49" },
+            { registerNumber: "23UCS311", building: "BBA", room: "302", seat: "50" },
+            
+                
+            { registerNumber: "23UCS312", building: "BBA", room: "303", seat: "51" },
+            { registerNumber: "23UCS313", building: "BBA", room: "303", seat: "52" },
+            { registerNumber: "23UCS314", building: "BBA", room: "303", seat: "53" },
+            { registerNumber: "23UCS315", building: "BBA", room: "303", seat: "54" },
+            { registerNumber: "23UCS316", building: "BBA", room: "303", seat: "55" },
+            
+            
+            { registerNumber: "23UCS317", building: "BBA", room: "304", seat: "56" },
+            { registerNumber: "23UCS318", building: "BBA", room: "304", seat: "57" },
+            { registerNumber: "23UCS319", building: "BBA", room: "304", seat: "58" },
+            { registerNumber: "23UCS320", building: "BBA", room: "304", seat: "59" },
+            { registerNumber: "23UCS321", building: "BBA", room: "304", seat: "60" }
+            
+        ];
+function openMap() {
+  window.location.href = "map.html";
+}
+
+        // All available buildings
+        const allBuildings = ["CS", "IT", "BBA"];
+
+        // Get register number from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const registerNumber = urlParams.get('register');
+
+        // Display register number
+        document.getElementById('registerDisplay').textContent = registerNumber || 'Not Found';
+
+        // Find the student's allocation
+        const studentAllocation = examAllocations.find(
+            allocation => allocation.registerNumber === registerNumber
+        );
+
+        if (!studentAllocation) {
+            alert('Register number not found. Redirecting to search page.');
+            window.location.href = 'index.html';
+        }
+localStorage.setItem("building", studentAllocation.building);
+
+        // Load buildings
+        function loadBuildings() {
+            const container = document.getElementById('buildingsContainer');
+            
+            allBuildings.forEach(building => {
+                const isHighlighted = building === studentAllocation.building;
+                
+                const buildingCard = document.createElement('div');
+                buildingCard.className = `building-card ${isHighlighted ? 'highlighted' : ''}`;
+                buildingCard.onclick = () => {
+                    if (isHighlighted) {
+                        window.location.href = `rooms.html?register=${registerNumber}&building=${building}`;
+                    }
+                };
+                
+                buildingCard.innerHTML = `
+                    <div class="building-icon">🏢</div>
+                    <div class="building-name">Building ${building}</div>
+                    <div class="building-label">Examination Hall</div>
+                    ${isHighlighted ? '<span class="highlighted-badge">Your Building</span>' : ''}
+                `;
+                
+                container.appendChild(buildingCard);
+            });
+        }
+
+        loadBuildings();
+    </script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Campus Map</title>
+
+<style>
+  body {
+    margin: 0;
+    background: #f4f6fb;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .map-container {
+    position: relative;
+    width: 90%;
+    max-width: 1200px;
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    overflow: hidden;
+  }
+
+  .map-img {
+    width: 100%;
+    display: block;
+  }
+
+  /* BACK BUTTON */
+  .back-btn {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 10;
+    background: white;
+    border: 2px solid #4f6ef7;
+    color: #4f6ef7;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .back-btn:hover {
+    background: #4f6ef7;
+    color: white;
+  }
+
+  /* 📍 RED PIN */
+  #pin {
+    position: absolute;
+    font-size: 42px;
+    display: none;
+    transform: translate(-50%, -100%);
+    animation: bounce 1s infinite;
+    z-index: 5;
+  }
+
+  @keyframes bounce {
+    0%, 100% {
+      transform: translate(-50%, -100%) translateY(0);
+    }
+    50% {
+      transform: translate(-50%, -100%) translateY(-12px);
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="map-container">
+
+  <button class="back-btn" onclick="goBack()">← Back</button>
+
+  <img src="campus-map.png" class="map-img" alt="Campus Map">
+
+  <!-- RED PIN -->
+  <div id="pin">📍</div>
+
+</div>
+
+<script>
+  // Building name saved from buildings.html
+  const building = localStorage.getItem("building");
+
+  const pin = document.getElementById("pin");
+
+  // 🎯 CHANGE ONLY THESE VALUES TO MATCH YOUR MAP
+  const positions = {
+    GROUND:   { top: "18%", left: "25%" },
+    CS:       { top: "9%", left: "64.5%" },
+    IT:       { top: "9%", left: "89.5%" },
+
+    ENGLISH:  { top: "36%", left: "45%" },
+    CANTEEN:  { top: "36%", left: "20%" },
+
+    OFFICE:   { top: "52%", left: "20%" },
+
+    COMMERCE: { top: "68%", left: "20%" },
+    BBA:      { top: "77.5%", left: "35%" },
+    GARDEN:   { top: "68%", left: "75%" }
+  };
+
+  if (building && positions[building]) {
+    pin.style.top = positions[building].top;
+    pin.style.left = positions[building].left;
+    pin.style.display = "block";
+  }
+
+  function goBack() {
+    window.history.back();
+  }
+</script>
+
+</body>
+</html>

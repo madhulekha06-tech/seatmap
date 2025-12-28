@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Seat - Exam Room Allotment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .info-line {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 5px 0;
+        }
+
+        .seats-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .room-front {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 40px;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .seats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .seat {
+            aspect-ratio: 1;
+            background: #f0f0f0;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: default;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .seat-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .seat-number {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .seat.occupied {
+            background: #e8e8e8;
+            border-color: #ccc;
+        }
+
+        .seat.highlighted {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 3px solid #4c5fd5;
+            color: white;
+            animation: highlight-pulse 2s infinite;
+            transform: scale(1.1);
+        }
+
+        .seat.highlighted .seat-number {
+            color: white;
+            font-weight: 700;
+        }
+
+        @keyframes highlight-pulse {
+            0%, 100% {
+                box-shadow: 0 5px 30px rgba(102, 126, 234, 0.5);
+            }
+            50% {
+                box-shadow: 0 10px 50px rgba(102, 126, 234, 0.8);
+            }
+        }
+
+        .your-seat-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #ffd700;
+            color: #333;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 700;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .back-button:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            border: 2px solid #ddd;
+        }
+
+        .legend-box.available {
+            background: #f0f0f0;
+        }
+
+        .legend-box.occupied {
+            background: #e8e8e8;
+        }
+
+        .legend-box.yours {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #4c5fd5;
+        }
+
+        .confirmation-box {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .confirmation-box .seat-details {
+            margin-top: 10px;
+            font-size: 24px;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <a href="#" class="back-button" id="backButton">← Back to Rooms</a>
+
+    <div class="header">
+        <h1>Your Exam Seat</h1>
+        <p class="info-line">Register Number: <span id="registerDisplay"></span></p>
+        <p class="info-line">Building: <span id="buildingDisplay"></span> | Room: <span id="roomDisplay"></span></p>
+    </div>
+
+    <div class="seats-wrapper">
+        <div class="room-front">👨‍🏫 Front of Room (Invigilator)</div>
+        
+        <div class="seats-container" id="seatsContainer">
+            <!-- Seats will be loaded here by JavaScript -->
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box available"></div>
+                <span>Available</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box occupied"></div>
+                <span>Occupied</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box yours"></div>
+                <span>Your Seat</span>
+            </div>
+        </div>
+
+        <div class="confirmation-box">
+            <div>✓ Your seat has been located!</div>
+            <div class="seat-details">Seat Number: <span id="seatNumberDisplay"></span></div>
+        </div>
+    </div>
+
+    <script>
+        // Sample exam allocation data (update this with your 60 entries)
+        const examAllocations = [
+            { registerNumber: "23UCS262", building: "CS", room: "101", seat: "1" },
+            { registerNumber: "23UCS263", building: "CS", room: "101", seat: "2" },
+            { registerNumber: "23UCS264", building: "CS", room: "101", seat: "3" },
+            { registerNumber: "23UCS265", building: "CS", room: "101", seat: "4" },
+            { registerNumber: "23UCS266", building: "CS", room: "101", seat: "5" },
+            
+            { registerNumber: "23UCS267", building: "CS", room: "102", seat: "6" },
+            { registerNumber: "23UCS268", building: "CS", room: "102", seat: "7" },
+            { registerNumber: "23UCS269", building: "CS", room: "102", seat: "8" },
+            { registerNumber: "23UCS270", building: "CS", room: "102", seat: "9" },
+            { registerNumber: "23UCS271", building: "CS", room: "102", seat: "10" },
+             
+            { registerNumber: "23UCS272", building: "CS", room: "103", seat: "11" },
+            { registerNumber: "23UCS273", building: "CS", room: "103", seat: "12" },
+            { registerNumber: "23UCS274", building: "CS", room: "103", seat: "13" },
+            { registerNumber: "23UCS275", building: "CS", room: "103", seat: "14" },
+            { registerNumber: "23UCS276", building: "CS", room: "103", seat: "15" },
+             
+            { registerNumber: "23UCS277", building: "CS", room: "104", seat: "16" },
+            { registerNumber: "23UCS278", building: "CS", room: "104", seat: "17" },
+            { registerNumber: "23UCS279", building: "CS", room: "104", seat: "18" },
+            { registerNumber: "23UCS280", building: "CS", room: "104", seat: "19" },
+            { registerNumber: "23UCS281", building: "CS", room: "104", seat: "20" },
+           
+            { registerNumber: "23UCS282", building: "IT", room: "201", seat: "21" },
+            { registerNumber: "23UCS283", building: "IT", room: "201", seat: "22" },
+            { registerNumber: "23UCS284", building: "IT", room: "201", seat: "23" },
+            { registerNumber: "23UCS285", building: "IT", room: "201", seat: "24" },
+            { registerNumber: "23UCS286", building: "IT", room: "201", seat: "25" },
+
+            { registerNumber: "23UCS287", building: "IT", room: "202", seat: "26" },
+            { registerNumber: "23UCS288", building: "IT", room: "202", seat: "27" },
+            { registerNumber: "23UCS289", building: "IT", room: "202", seat: "28" },
+            { registerNumber: "23UCS290", building: "IT", room: "202", seat: "29" },
+            { registerNumber: "23UCS291", building: "IT", room: "202", seat: "30" },
+            
+            { registerNumber: "23UCS292", building: "IT", room: "203", seat: "31" },
+            { registerNumber: "23UCS293", building: "IT", room: "203", seat: "32" },
+            { registerNumber: "23UCS294", building: "IT", room: "203", seat: "33" },
+            { registerNumber: "23UCS295", building: "IT", room: "203", seat: "34" },
+            { registerNumber: "23UCS296", building: "IT", room: "203", seat: "35" },
+            
+            { registerNumber: "23UCS297", building: "IT", room: "204", seat: "36" },
+            { registerNumber: "23UCS298", building: "IT", room: "204", seat: "37" },
+            { registerNumber: "23UCS299", building: "IT", room: "204", seat: "38" },
+            { registerNumber: "23UCS300", building: "IT", room: "204", seat: "39" },
+            { registerNumber: "23UCS301", building: "IT", room: "204", seat: "40" },
+          
+            { registerNumber: "23UCS302", building: "BBA", room: "301", seat: "41" },
+            { registerNumber: "23UCS303", building: "BBA", room: "301", seat: "42" },
+            { registerNumber: "23UCS304", building: "BBA", room: "301", seat: "43" },
+            { registerNumber: "23UCS305", building: "BBA", room: "301", seat: "44" },
+            { registerNumber: "23UCS306", building: "BBA", room: "301", seat: "45" },
+          
+            { registerNumber: "23UCS307", building: "BBA", room: "302", seat: "46" },
+            { registerNumber: "23UCS308", building: "BBA", room: "302", seat: "47" },
+            { registerNumber: "23UCS309", building: "BBA", room: "302", seat: "48" },
+            { registerNumber: "23UCS310", building: "BBA", room: "302", seat: "49" },
+            { registerNumber: "23UCS311", building: "BBA", room: "302", seat: "50" },
+            
+            { registerNumber: "23UCS312", building: "BBA", room: "303", seat: "51" },
+            { registerNumber: "23UCS313", building: "BBA", room: "303", seat: "52" },
+            { registerNumber: "23UCS314", building: "BBA", room: "303", seat: "53" },
+            { registerNumber: "23UCS315", building: "BBA", room: "303", seat: "54" },
+            { registerNumber: "23UCS316", building: "BBA", room: "303", seat: "55" },
+            
+            { registerNumber: "23UCS317", building: "BBA", room: "304", seat: "56" },
+            { registerNumber: "23UCS318", building: "BBA", room: "304", seat: "57" },
+            { registerNumber: "23UCS319", building: "BBA", room: "304", seat: "58" },
+            { registerNumber: "23UCS320", building: "BBA", room: "304", seat: "59" },
+            { registerNumber: "23UCS321", building: "BBA", room: "304", seat: "60" }
+        ];
+
+        // Get parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const registerNumber = urlParams.get('register');
+        const building = urlParams.get('building');
+        const room = urlParams.get('room');
+
+        // Display info
+        document.getElementById('registerDisplay').textContent = registerNumber || 'Not Found';
+        document.getElementById('buildingDisplay').textContent = building || 'Not Found';
+        document.getElementById('roomDisplay').textContent = room || 'Not Found';
+
+        // Set back button link
+        document.getElementById('backButton').href = `rooms.html?register=${registerNumber}&building=${building}`;
+
+        // Find the student's allocation
+        const studentAllocation = examAllocations.find(
+            allocation => allocation.registerNumber === registerNumber
+        );
+
+        if (!studentAllocation) {
+            alert('Register number not found. Redirecting to search page.');
+            window.location.href = 'index.html';
+        }
+
+        // Display seat number in confirmation box
+        document.getElementById('seatNumberDisplay').textContent = studentAllocation.seat;
+
+        // Find all students in this room
+        const studentsInRoom = examAllocations.filter(
+            allocation => allocation.building === building && allocation.room === room
+        );
+
+        // Get all seat numbers in this room and find the range
+        const seatsInRoom = studentsInRoom.map(s => parseInt(s.seat));
+        const minSeat = Math.min(...seatsInRoom);
+        const maxSeat = Math.max(...seatsInRoom);
+        
+        const occupiedSeats = studentsInRoom.map(s => s.seat);
+
+        // Show 20 seats per room (more realistic exam room size)
+        const totalSeatsToShow = 20;
+        
+        // Calculate starting seat number (round down to nearest multiple for better display)
+        const startSeat = Math.floor((minSeat - 1) / totalSeatsToShow) * totalSeatsToShow + 1;
+        const endSeat = startSeat + totalSeatsToShow - 1;
+
+        // Load seats - show 20 seats with occupied ones highlighted
+        function loadSeats() {
+            const container = document.getElementById('seatsContainer');
+            
+            for (let i = startSeat; i <= endSeat; i++) {
+                const seatNumber = i.toString();
+                const isOccupied = occupiedSeats.includes(seatNumber);
+                const isHighlighted = seatNumber === studentAllocation.seat;
+                
+                const seat = document.createElement('div');
+                seat.className = `seat ${isOccupied ? 'occupied' : ''} ${isHighlighted ? 'highlighted' : ''}`;
+                
+                seat.innerHTML = `
+                    <div class="seat-icon">${isHighlighted ? '⭐' : '🪑'}</div>
+                    <div class="seat-number">${seatNumber}</div>
+                    ${isHighlighted ? '<div class="your-seat-badge">YOU</div>' : ''}
+                `;
+                
+                container.appendChild(seat);
+            }
+        }
+
+        loadSeats();
+    </script>
+</body>
+</html>

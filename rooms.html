@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Room - Exam Room Allotment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .info-line {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 5px 0;
+        }
+
+        .rooms-container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            padding: 20px;
+        }
+
+        .room-card {
+            background: white;
+            padding: 40px 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .room-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .room-card.highlighted {
+            border: 3px solid #667eea;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+            }
+            50% {
+                box-shadow: 0 10px 40px rgba(102, 126, 234, 0.6);
+            }
+        }
+
+        .room-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .room-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .room-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .highlighted-badge {
+            display: none;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 15px;
+            display: inline-block;
+        }
+
+        .room-card:not(.highlighted) .highlighted-badge {
+            display: none;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .back-button:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .instruction {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <a href="#" class="back-button" id="backButton">← Back to Buildings</a>
+
+    <div class="header">
+        <h1>Select Your Room</h1>
+        <p class="info-line">Register Number: <span id="registerDisplay"></span></p>
+        <p class="info-line">Building: <span id="buildingDisplay"></span></p>
+    </div>
+
+    <p class="instruction">Click on the highlighted room to view seat layout</p>
+
+    <div class="rooms-container" id="roomsContainer">
+        <!-- Rooms will be loaded here by JavaScript -->
+    </div>
+
+    <script>
+        // Sample exam allocation data (same as previous pages)
+        const examAllocations = [
+            { registerNumber: "23UCS262", building: "CS", room: "101", seat: "1" },
+            { registerNumber: "23UCS263", building: "CS", room: "101", seat: "2" },
+            { registerNumber: "23UCS264", building: "CS", room: "101", seat: "3" },
+            { registerNumber: "23UCS265", building: "CS", room: "101", seat: "4" },
+            { registerNumber: "23UCS266", building: "CS", room: "101", seat: "5" },
+            
+            { registerNumber: "23UCS267", building: "CS", room: "102", seat: "6" },
+            { registerNumber: "23UCS268", building: "CS", room: "102", seat: "7" },
+            { registerNumber: "23UCS269", building: "CS", room: "102", seat: "8" },
+            { registerNumber: "23UCS270", building: "CS", room: "102", seat: "9" },
+            { registerNumber: "23UCS271", building: "CS", room: "102", seat: "10" },
+             
+             { registerNumber: "23UCS272", building: "CS", room: "103", seat: "11" },
+            { registerNumber: "23UCS273", building: "CS", room: "103", seat: "12" },
+            { registerNumber: "23UCS274", building: "CS", room: "103", seat: "13" },
+            { registerNumber: "23UCS275", building: "CS", room: "103", seat: "14" },
+            { registerNumber: "23UCS276", building: "CS", room: "103", seat: "15" },
+             
+            { registerNumber: "23UCS277", building: "CS", room: "104", seat: "16" },
+            { registerNumber: "23UCS278", building: "CS", room: "104", seat: "17" },
+            { registerNumber: "23UCS279", building: "CS", room: "104", seat: "18" },
+            { registerNumber: "23UCS280", building: "CS", room: "104", seat: "19" },
+            { registerNumber: "23UCS281", building: "CS", room: "104", seat: "20" },
+           
+             
+            { registerNumber: "23UCS282", building: "IT", room: "201", seat: "21" },
+            { registerNumber: "23UCS283", building: "IT", room: "201", seat: "22" },
+            { registerNumber: "23UCS284", building: "IT", room: "201", seat: "23" },
+            { registerNumber: "23UCS285", building: "IT", room: "201", seat: "24" },
+            { registerNumber: "23UCS286", building: "IT", room: "201", seat: "25" },
+
+            { registerNumber: "23UCS287", building: "IT", room: "202", seat: "26" },
+            { registerNumber: "23UCS288", building: "IT", room: "202", seat: "27" },
+            { registerNumber: "23UCS289", building: "IT", room: "202", seat: "28" },
+            { registerNumber: "23UCS290", building: "IT", room: "202", seat: "29" },
+            { registerNumber: "23UCS291", building: "IT", room: "202", seat: "30" },
+            
+            { registerNumber: "23UCS292", building: "IT", room: "203", seat: "31" },
+            { registerNumber: "23UCS293", building: "IT", room: "203", seat: "32" },
+            { registerNumber: "23UCS294", building: "IT", room: "203", seat: "33" },
+            { registerNumber: "23UCS295", building: "IT", room: "203", seat: "34" },
+            { registerNumber: "23UCS296", building: "IT", room: "203", seat: "35" },
+            
+            { registerNumber: "23UCS297", building: "IT", room: "204", seat: "36" },
+            { registerNumber: "23UCS298", building: "IT", room: "204", seat: "37" },
+            { registerNumber: "23UCS299", building: "IT", room: "204", seat: "38" },
+            { registerNumber: "23UCS300", building: "IT", room: "204", seat: "39" },
+            { registerNumber: "23UCS301", building: "IT", room: "204", seat: "40"},
+          
+            { registerNumber: "23UCS302", building: "BBA", room: "301", seat: "41" },
+            { registerNumber: "23UCS303", building: "BBA", room: "301", seat: "42" },
+            { registerNumber: "23UCS304", building: "BBA", room: "301", seat: "43" },
+            { registerNumber: "23UCS305", building: "BBA", room: "301", seat: "44" },
+            { registerNumber: "23UCS306", building: "BBA", room: "301", seat: "45" },
+          
+                
+            { registerNumber: "23UCS307", building: "BBA", room: "302", seat: "46" },
+            { registerNumber: "23UCS308", building: "BBA", room: "302", seat: "47" },
+            { registerNumber: "23UCS309", building: "BBA", room: "302", seat: "48" },
+            { registerNumber: "23UCS310", building: "BBA", room: "302", seat: "49" },
+            { registerNumber: "23UCS311", building: "BBA", room: "302", seat: "50" },
+            
+                
+            { registerNumber: "23UCS312", building: "BBA", room: "303", seat: "51" },
+            { registerNumber: "23UCS313", building: "BBA", room: "303", seat: "52" },
+            { registerNumber: "23UCS314", building: "BBA", room: "303", seat: "53" },
+            { registerNumber: "23UCS315", building: "BBA", room: "303", seat: "54" },
+            { registerNumber: "23UCS316", building: "BBA", room: "303", seat: "55" },
+            
+            
+            { registerNumber: "23UCS317", building: "BBA", room: "304", seat: "56" },
+            { registerNumber: "23UCS318", building: "BBA", room: "304", seat: "57" },
+            { registerNumber: "23UCS319", building: "BBA", room: "304", seat: "58" },
+            { registerNumber: "23UCS320", building: "BBA", room: "304", seat: "59" },
+            { registerNumber: "23UCS321", building: "BBA", room: "304", seat: "60" }
+            
+        ];
+
+        // 4 rooms per building
+        const buildingRooms = {
+            "CS": ["101", "102", "103", "104"],
+            "IT": ["201", "202", "203", "204"],
+            "BBA": ["301", "302", "303", "304"],
+            
+        };
+
+        // Get parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const registerNumber = urlParams.get('register');
+        const building = urlParams.get('building');
+
+        // Display info
+        document.getElementById('registerDisplay').textContent = registerNumber || 'Not Found';
+        document.getElementById('buildingDisplay').textContent = building || 'Not Found';
+
+        // Set back button link
+        document.getElementById('backButton').href = `buildings.html?register=${registerNumber}`;
+
+        // Find the student's allocation
+        const studentAllocation = examAllocations.find(
+            allocation => allocation.registerNumber === registerNumber
+        );
+
+        if (!studentAllocation) {
+            alert('Register number not found. Redirecting to search page.');
+            window.location.href = 'index.html';
+        }
+
+        // Load rooms for the selected building
+        function loadRooms() {
+            const container = document.getElementById('roomsContainer');
+            const rooms = buildingRooms[building] || [];
+            
+            if (rooms.length === 0) {
+                container.innerHTML = '<p style="color: white; text-align: center;">No rooms found for this building.</p>';
+                return;
+            }
+            
+            rooms.forEach(room => {
+                const isHighlighted = room === studentAllocation.room && building === studentAllocation.building;
+                
+                const roomCard = document.createElement('div');
+                roomCard.className = `room-card ${isHighlighted ? 'highlighted' : ''}`;
+                roomCard.onclick = () => {
+                    if (isHighlighted) {
+                        window.location.href = `seats.html?register=${registerNumber}&building=${building}&room=${room}`;
+                    }
+                };
+                
+                roomCard.innerHTML = `
+                    <div class="room-icon">🚪</div>
+                    <div class="room-number">Room ${room}</div>
+                    <div class="room-label">Exam Room</div>
+                    ${isHighlighted ? '<span class="highlighted-badge">Your Room</span>' : ''}
+                `;
+                
+                container.appendChild(roomCard);
+            });
+        }
+
+        loadRooms();
+    </script>
+</body>
+</html>

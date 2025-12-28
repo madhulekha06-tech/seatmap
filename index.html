@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Room Allotment</title>
+    <style>
+.logo-text {
+    animation: fadeSlide 1.2s ease forwards;
+}
+
+@keyframes fadeSlide {
+    from {
+        opacity: 0;
+        transform: translateX(-15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+.logo-text:hover {
+    text-shadow: 0 0 8px rgba(102, 126, 234, 0.8);
+    transition: 0.3s;
+}
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+    background: linear-gradient(90deg, #1a0033, #2a004f);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            padding: 0 20px;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .logo-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #667eea;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+    position: relative;
+    text-decoration: none;
+    color: #667eea;
+    font-weight: 500;
+}
+
+.nav-links a::after {
+    content: "";
+    position: absolute;
+    width: 0%;
+    height: 2px;
+    bottom: -6px;
+    left: 0;
+    background: #667eea;
+    transition: 0.3s;
+}
+
+.nav-links a:hover::after {
+    width: 100%;
+}
+
+
+        .admin-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white !important;
+            padding: 10px 20px !important;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .admin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .mobile-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .mobile-toggle span {
+            width: 25px;
+            height: 3px;
+            background: #333;
+            border-radius: 3px;
+            transition: 0.3s;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 75px;
+                left: -100%;
+                flex-direction: column;
+                background: white;
+                width: 100%;
+                padding: 20px;
+                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+                transition: left 0.3s;
+            }
+
+            .nav-links.active {
+                left: 0;
+            }
+
+            .mobile-toggle {
+                display: flex;
+            }
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 80px);
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: #e74c3c;
+            margin-top: 15px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <img src="logo.png" alt="Logo" class="logo-img" onerror="this.style.display='none'">
+                <span class="logo-text">SeatMap</span>
+            </a>
+            
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="countdown.html">Exam Countdown</a></li>
+                <li><a href="instructions.html">Instructions</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="admin.html" class="admin-btn">Admin Login</a></li>
+            </ul>
+            
+            <div class="mobile-toggle" onclick="toggleMobileMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+    <div class="container">
+        <div class="icon">🎓</div>
+        <h1>Exam Room Allotment</h1>
+        <p class="subtitle">Enter your register number to find your exam seat</p>
+        
+        <div class="search-box">
+            <label for="registerNumber">Register Number</label>
+            <input 
+                type="text" 
+                id="registerNumber" 
+                placeholder="e.g., 23UCS262"
+                autocomplete="off"
+            >
+        </div>
+        
+        <button onclick="searchAllotment()">Search</button>
+        
+        <div class="error-message" id="errorMessage">
+            Register number not found. Please check and try again.
+        </div>
+    </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const navLinks = document.getElementById('navLinks');
+            navLinks.classList.toggle('active');
+        }
+
+        // Sample exam allocation data
+        const examAllocations = [
+          { registerNumber: "23UCS262", building: "CS", room: "101", seat: "1" },
+            { registerNumber: "23UCS263", building: "CS", room: "101", seat: "2" },
+            { registerNumber: "23UCS264", building: "CS", room: "101", seat: "3" },
+            { registerNumber: "23UCS265", building: "CS", room: "101", seat: "4" },
+            { registerNumber: "23UCS266", building: "CS", room: "101", seat: "5" },
+            
+            { registerNumber: "23UCS267", building: "CS", room: "102", seat: "6" },
+            { registerNumber: "23UCS268", building: "CS", room: "102", seat: "7" },
+            { registerNumber: "23UCS269", building: "CS", room: "102", seat: "8" },
+            { registerNumber: "23UCS270", building: "CS", room: "102", seat: "9" },
+            { registerNumber: "23UCS271", building: "CS", room: "102", seat: "10" },
+             
+             { registerNumber: "23UCS272", building: "CS", room: "103", seat: "11" },
+            { registerNumber: "23UCS273", building: "CS", room: "103", seat: "12" },
+            { registerNumber: "23UCS274", building: "CS", room: "103", seat: "13" },
+            { registerNumber: "23UCS275", building: "CS", room: "103", seat: "14" },
+            { registerNumber: "23UCS276", building: "CS", room: "103", seat: "15" },
+             
+            { registerNumber: "23UCS277", building: "CS", room: "104", seat: "16" },
+            { registerNumber: "23UCS278", building: "CS", room: "104", seat: "17" },
+            { registerNumber: "23UCS279", building: "CS", room: "104", seat: "18" },
+            { registerNumber: "23UCS280", building: "CS", room: "104", seat: "19" },
+            { registerNumber: "23UCS281", building: "CS", room: "104", seat: "20" },
+           
+             
+            { registerNumber: "23UCS282", building: "IT", room: "201", seat: "21" },
+            { registerNumber: "23UCS283", building: "IT", room: "201", seat: "22" },
+            { registerNumber: "23UCS284", building: "IT", room: "201", seat: "23" },
+            { registerNumber: "23UCS285", building: "IT", room: "201", seat: "24" },
+            { registerNumber: "23UCS286", building: "IT", room: "201", seat: "25" },
+
+            { registerNumber: "23UCS287", building: "IT", room: "202", seat: "26" },
+            { registerNumber: "23UCS288", building: "IT", room: "202", seat: "27" },
+            { registerNumber: "23UCS289", building: "IT", room: "202", seat: "28" },
+            { registerNumber: "23UCS290", building: "IT", room: "202", seat: "29" },
+            { registerNumber: "23UCS291", building: "IT", room: "202", seat: "30" },
+            
+            { registerNumber: "23UCS292", building: "IT", room: "203", seat: "31" },
+            { registerNumber: "23UCS293", building: "IT", room: "203", seat: "32" },
+            { registerNumber: "23UCS294", building: "IT", room: "203", seat: "33" },
+            { registerNumber: "23UCS295", building: "IT", room: "203", seat: "34" },
+            { registerNumber: "23UCS296", building: "IT", room: "203", seat: "35" },
+            
+            { registerNumber: "23UCS297", building: "IT", room: "204", seat: "36" },
+            { registerNumber: "23UCS298", building: "IT", room: "204", seat: "37" },
+            { registerNumber: "23UCS299", building: "IT", room: "204", seat: "38" },
+            { registerNumber: "23UCS300", building: "IT", room: "204", seat: "39" },
+            { registerNumber: "23UCS301", building: "IT", room: "204", seat: "40"},
+          
+            { registerNumber: "23UCS302", building: "BBA", room: "301", seat: "41" },
+            { registerNumber: "23UCS303", building: "BBA", room: "301", seat: "42" },
+            { registerNumber: "23UCS304", building: "BBA", room: "301", seat: "43" },
+            { registerNumber: "23UCS305", building: "BBA", room: "301", seat: "44" },
+            { registerNumber: "23UCS306", building: "BBA", room: "301", seat: "45" },
+          
+                
+            { registerNumber: "23UCS307", building: "BBA", room: "302", seat: "46" },
+            { registerNumber: "23UCS308", building: "BBA", room: "302", seat: "47" },
+            { registerNumber: "23UCS309", building: "BBA", room: "302", seat: "48" },
+            { registerNumber: "23UCS310", building: "BBA", room: "302", seat: "49" },
+            { registerNumber: "23UCS311", building: "BBA", room: "302", seat: "50" },
+            
+                
+            { registerNumber: "23UCS312", building: "BBA", room: "303", seat: "51" },
+            { registerNumber: "23UCS313", building: "BBA", room: "303", seat: "52" },
+            { registerNumber: "23UCS314", building: "BBA", room: "303", seat: "53" },
+            { registerNumber: "23UCS315", building: "BBA", room: "303", seat: "54" },
+            { registerNumber: "23UCS316", building: "BBA", room: "303", seat: "55" },
+            
+            
+            { registerNumber: "23UCS317", building: "BBA", room: "304", seat: "56" },
+            { registerNumber: "23UCS318", building: "BBA", room: "304", seat: "57" },
+            { registerNumber: "23UCS319", building: "BBA", room: "304", seat: "58" },
+            { registerNumber: "23UCS320", building: "BBA", room: "304", seat: "59" },
+            { registerNumber: "23UCS321", building: "BBA", room: "304", seat: "60" }
+            
+        ];
+
+        function searchAllotment() {
+            const registerNumber = document.getElementById('registerNumber').value.trim();
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Hide error message
+            errorMessage.classList.remove('show');
+            
+            // Validate input
+            if (registerNumber === '') {
+                errorMessage.textContent = 'Please enter your register number.';
+                errorMessage.classList.add('show');
+                return;
+            }
+            
+            // Search for the register number
+            const result = examAllocations.find(
+                allocation => allocation.registerNumber === registerNumber
+            );
+            
+            if (result) {
+                // Redirect to buildings page with register number
+                window.location.href = `buildings.html?register=${registerNumber}`;
+            } else {
+                errorMessage.textContent = 'Register number not found. Please check and try again.';
+                errorMessage.classList.add('show');
+            }
+        }
+
+        // Allow Enter key to trigger search
+        document.getElementById('registerNumber').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                searchAllotment();
+            }
+        });
+    </script>
+</body>
+</html>
